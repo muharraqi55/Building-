@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>بناء - حاسبة البناء الذكية</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        /* ===== CSS Variables & Themes ===== */
+        :root {
+            /* Elegant Dark Theme - Original Design with Black */
+            --bg-page: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0d0d0d 100%);
+            --bg-card: rgba(20, 20, 20, 0.92);
+            --bg-card-hover: rgba(30, 30, 30, 0.96);
+            --text-primary: #f0f0f0;
+            --text-secondary: #b0b0b0;
+            --text-muted: #707070;
+            --shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            --border-radius: 30px;
+            --input-bg: rgba(40, 40, 40, 0.7);
+            --input-border: #333333;
+            --input-disabled: rgba(30, 30, 30, 0.4);
+            --accent: #00d4ff;
+            --accent-hover: #00b8d4;
+            --accent-glow: rgba(0, 212, 255, 0.15);
+            --success: #00e676;
+            --gradient-start: #00d4ff;
+            --gradient-end: #0091ea;
+            --font-size-base: 16px;
+            --card-border: 1px solid rgba(255, 255, 255, 0.06);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-hover: 0 20px 70px rgba(0, 0, 0, 0.9);
+        }
+
+        /* Light Theme - Keep it clean */
+        body.light-mode {
+            --bg-page: linear-gradient(135deg, #e8edf5 0%, #d5dce6 100%);
+            --bg-card: rgba(255, 255, 255, 0.92);
+            --bg-card-hover: rgba(255, 255, 255, 0.98);
+            --text-primary: #1a1a2e;
+            --text-secondary: #4a4a6a;
+            --text-muted: #8b8aa0;
+            --shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+            --input-bg: rgba(255, 255, 255, 0.7);
+            --input-border: #c7d2fe;
+            --input-disabled: rgba(200, 200, 220, 0.3);
+            --accent: #4f46e5;
+            --accent-hover: #4338ca;
+            --accent-glow: rgba(79, 70, 229, 0.15);
+            --gradient-start: #4f46e5;
+            --gradient-end: #7c3aed;
+            --card-border: 1px solid rgba(79, 70, 229, 0.1);
+            --shadow-hover: 0 20px 70px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Font sizes */
+        .font-small { --font-size-base: 14px; }
+        .font-medium { --font-size-base: 17px; }
+        .font-large { --font-size-base: 21px; }
+
+        /* ===== Reset & Base ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: var(--bg-page);
+            color: var(--text-primary);
+            font-size: var(--font-size-base);
+            transition: var(--transition);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+            margin: 0;
+        }
+
+        /* ===== App Container ===== */
+        .app-wrapper {
+            max-width: 950px;
+            width: 100%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+
+        /* ===== Control Bar ===== */
+        .control-bar {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            padding: 0.8rem 1.8rem;
+            border-radius: 60px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.8rem;
+            margin-bottom: 2rem;
+            transition: var(--transition);
+            border: var(--card-border);
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .ctrl-btn {
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            color: var(--text-primary);
+            padding: 0.4rem 1rem;
+            border-radius: 40px;
+            font-weight: 500;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            backdrop-filter: blur(4px);
+        }
+
+        .ctrl-btn:hover {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .ctrl-select {
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            color: var(--text-primary);
+            padding: 0.4rem 1rem;
+            border-radius: 40px;
+            font-weight: 500;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+            backdrop-filter: blur(4px);
+            min-width: 120px;
+        }
+
+        .ctrl-select:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .ctrl-select option {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        /* ===== Main Card ===== */
+        .calculator-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius);
+            padding: 2.5rem 3rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border: var(--card-border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calculator-card:hover {
+            box-shadow: var(--shadow-hover);
+        }
+
+        .calculator-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 20%, var(--accent-glow) 0%, transparent 50%);
+            opacity: 0.08;
+            animation: pulseGlow 8s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); opacity: 0.08; }
+            50% { transform: scale(1.2); opacity: 0.15; }
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 0.3rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-header h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-header h1 i {
+            -webkit-text-fill-color: initial;
+            color: var(--accent);
+        }
+
+        .lang-toggle {
+            display: flex;
+            gap: 0.3rem;
+            background: var(--input-bg);
+            padding: 0.2rem;
+            border-radius: 40px;
+            border: 1px solid var(--input-border);
+        }
+
+        .lang-btn {
+            padding: 0.3rem 1rem;
+            border: none;
+            border-radius: 30px;
+            background: transparent;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .lang-btn.active {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        .lang-btn:hover:not(.active) {
+            background: var(--accent-glow);
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 1.8rem;
+            padding-right: 16px;
+            border-right: 4px solid var(--accent);
+            font-size: 0.95rem;
+            position: relative;
+            z-index: 1;
+            opacity: 0.8;
+        }
+
+        /* ===== Mode Selection ===== */
+        .mode-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        @media (max-width: 550px) {
+            .mode-selector {
+                grid-template-columns: 1fr;
+            }
+            .calculator-card {
+                padding: 1.8rem;
+            }
+            .control-bar {
+                flex-direction: column;
+                align-items: stretch;
+                border-radius: 32px;
+                padding: 1rem;
+            }
+            .card-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+
+        .mode-btn {
+            padding: 1rem 1.5rem;
+            border: 2.5px solid var(--input-border);
+            border-radius: 20px;
+            background: var(--input-bg);
+            color: var(--text-secondary);
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            position: relative;
+        }
+
+        .mode-btn i {
+            font-size: 1.3rem;
+            color: var(--accent);
+            transition: var(--transition);
+        }
+
+        .mode-btn .mode-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--accent);
+            color: #000;
+            font-size: 0.55rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+
+        .mode-btn.active {
+            border-color: var(--accent);
+            background: var(--accent-glow);
+            color: var(--text-primary);
+            box-shadow: 0 0 30px var(--accent-glow);
+            transform: scale(1.02);
+        }
+
+        .mode-btn.active i {
+            color: var(--accent);
+            transform: scale(1.1);
+        }
+
+        .mode-btn:hover:not(.active) {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        /* ===== Form Grid ===== */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem 2rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        @media (max-width: 650px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 1.2rem;
+            }
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: var(--transition);
+        }
+
+        .input-group.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group label i {
+            color: var(--accent);
+            width: 18px;
+            font-size: 0.9rem;
+        }
+
+        .input-group .required-star {
+            color: #ff3b30;
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+
+        .input-group input {
+            background: var(--input-bg);
+            border: 2px solid var(--input-border);
+            border-radius: 18px;
+            padding: 0.85rem 1.2rem;
+            font-size: 1rem;
+            color: var(--text-primary);
+            transition: var(--transition);
+            width: 100%;
+            outline: none;
+            backdrop-filter: blur(4px);
+            direction: ltr;
+            text-align: right;
+        }
+
+        .input-group input:focus:not(:disabled) {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 6px var(--accent-glow);
+        }
+
+        .input-group input:disabled {
+            background: var(--input-disabled);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .input-group input::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.35;
+            text-align: right;
+        }
+
+        .input-group .hint {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            padding-right: 4px;
+            min-height: 1.2rem;
+        }
+
+        .input-group .hint.active-hint {
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        /* ===== Result Area ===== */
+        .result-area {
+            background: var(--input-bg);
+            border-radius: 24px;
+            padding: 1.5rem 2rem;
+            margin: 1.5rem 0;
+            position: relative;
+            z-index: 1;
+            border: 1px solid var(--input-border);
+            transition: var(--transition);
+        }
+
+        .result-area:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 30px var(--accent-glow);
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed var(--input-border);
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .result-label {
+            font-weight: 500;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+        }
+
+        .result-value {
+            font-weight: 700;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            padding: 0.2rem 1rem;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            direction: ltr;
+        }
+
+        .result-value .currency-symbol-display {
+            -webkit-text-fill-color: initial;
+            color: var(--accent);
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .result-value small {
+            -webkit-text-fill-color: initial;
+            color: var(--text-secondary);
+            font-weight: 400;
+            font-size: 0.65rem;
+            margin-right: 4px;
+        }
+
+        .result-value.placeholder {
+            -webkit-text-fill-color: var(--text-muted);
+            opacity: 0.5;
+        }
+
+        /* ===== Action Buttons ===== */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.3rem;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            border: none;
+            color: #000;
+            padding: 0.9rem 2rem;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 20px var(--accent-glow);
+            flex: 1 1 auto;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 35px var(--accent-glow);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-secondary {
+            background: var(--input-bg);
+            color: var(--text-primary);
+            box-shadow: none;
+            border: 2px solid var(--input-border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent);
+            box-shadow: 0 8px 30px var(--accent-glow);
+        }
+
+        /* ===== Footer ===== */
+        .footnote {
+            margin-top: 1.8rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: center;
+            border-top: 1px solid var(--input-border);
+            padding-top: 1.2rem;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footnote span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .footnote span i {
+            color: var(--accent);
+            font-size: 0.7rem;
+        }
+
+        /* ===== Live Indicator ===== */
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .pulse-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulseDot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(0.6); }
+        }
+
+        .live-badge {
+            background: var(--success);
+            color: #000;
+            font-size: 0.55rem;
+            padding: 0.15rem 0.7rem;
+            border-radius: 40px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            animation: pulseBadge 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseBadge {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .mode-info {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--accent-glow);
+            padding: 0.2rem 1rem;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            border: 1px solid var(--input-border);
+        }
+
+        .mode-info i {
+            color: var(--accent);
+        }
+
+        /* ===== Copyright ===== */
+        .copyright {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--input-border);
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+
+        .copyright i {
+            color: var(--accent);
+            margin: 0 4px;
+        }
+
+        .copyright .heart {
+            color: #ff3b30;
+            animation: heartBeat 1.5s ease-in-out infinite;
+            display: inline-block;
+        }
+
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-wrapper">
+        <!-- Control Bar -->
+        <div class="control-bar">
+            <div class="control-group">
+                <label><i class="fas fa-palette"></i> <span data-key="theme">المظهر</span></label>
+                <button id="themeToggle" class="ctrl-btn">
+                    <i class="fas fa-sun"></i> <span id="themeLabel" data-key="light">نهاري</span>
+                </button>
+            </div>
+            <div class="control-group">
+                <label><i class="fas fa-font"></i> <span data-key="font">الخط</span></label>
+                <select id="fontSizeSelect" class="ctrl-select">
+                    <option value="small" data-key="small">صغير</option>
+                    <option value="medium" selected data-key="medium">وسط</option>
+                    <option value="large" data-key="large">كبير</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label><i class="fas fa-money-bill-wave"></i> <span data-key="currency">العملة</span></label>
+                <select id="currencySelect" class="ctrl-select">
+                    <option value="AED">🇦🇪 درهم إماراتي</option>
+                    <option value="BHD" selected>🇧🇭 دينار بحريني</option>
+                    <option value="DZD">🇩🇿 دينار جزائري</option>
+                    <option value="EGP">🇪🇬 جنيه مصري</option>
+                    <option value="EUR">🇪🇺 يورو</option>
+                    <option value="GBP">🇬🇧 جنيه إسترليني</option>
+                    <option value="JOD">🇯🇴 دينار أردني</option>
+                    <option value="KWD">🇰🇼 دينار كويتي</option>
+                    <option value="OMR">🇴🇲 ريال عماني</option>
+                    <option value="QAR">🇶🇦 ريال قطري</option>
+                    <option value="SAR">🇸🇦 ريال سعودي</option>
+                    <option value="USD">🇺🇸 دولار أمريكي</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <button id="resetBtn" class="ctrl-btn"><i class="fas fa-undo-alt"></i> <span data-key="reset">إعادة ضبط</span></button>
+            </div>
+        </div>
+
+        <!-- Main Card -->
+        <div class="calculator-card">
+            <div class="card-header">
+                <h1>
+                    <i class="fas fa-cubes"></i> 
+                    <span data-key="title">بناء</span>
+                    <span class="live-badge">LIVE</span>
+                </h1>
+                <div class="lang-toggle">
+                    <button class="lang-btn active" data-lang="ar">عربي</button>
+                    <button class="lang-btn" data-lang="en">English</button>
+                </div>
+            </div>
+            <div class="subtitle" data-key="subtitle">
+                <i class="fas fa-ruler-combined"></i> احسب سعر الفوت أو السعر النهائي بدقة
+            </div>
+
+            <!-- Mode Selector -->
+            <div class="mode-selector" id="modeSelector">
+                <button class="mode-btn active" data-mode="footFromTotal">
+                    <i class="fas fa-arrow-right"></i>
+                    <span data-key="mode1">سعر الفوت ← من السعر الكامل</span>
+                    <span class="mode-badge">1</span>
+                </button>
+                <button class="mode-btn" data-mode="totalFromFoot">
+                    <i class="fas fa-arrow-left"></i>
+                    <span data-key="mode2">السعر النهائي ← من سعر الفوت</span>
+                    <span class="mode-badge">2</span>
+                </button>
+            </div>
+
+            <!-- Form -->
+            <div class="form-grid">
+                <div class="input-group" id="areaGroup">
+                    <label>
+                        <i class="fas fa-vector-square"></i> 
+                        <span data-key="area">مساحة الأرض</span>
+                        <span class="required-star">*</span>
+                    </label>
+                    <input type="text" id="areaInput" placeholder="مثال: 300" value="300" />
+                    <span class="hint active-hint" data-key="areaHint">مطلوب في كلا الوضعين</span>
+                </div>
+                <div class="input-group" id="totalPriceGroup">
+                    <label>
+                        <i class="fas fa-tag"></i> 
+                        <span data-key="totalPrice">سعر الأرض الكامل</span>
+                        <span class="required-star" id="totalStar">*</span>
+                    </label>
+                    <input type="text" id="totalPriceInput" placeholder="مثال: 90,000" value="90,000" />
+                    <span class="hint" id="totalHint" data-key="totalHint">مطلوب لحساب سعر الفوت</span>
+                </div>
+                <div class="input-group" id="footPriceGroup">
+                    <label>
+                        <i class="fas fa-dollar-sign"></i> 
+                        <span data-key="footPrice">سعر الفوت</span>
+                        <span class="required-star" id="footStar">*</span>
+                    </label>
+                    <input type="text" id="pricePerFootInput" placeholder="مثال: 28" value="28" />
+                    <span class="hint" id="footHint" data-key="footHint">مطلوب لحساب السعر النهائي</span>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-arrows-alt-h"></i> <span data-key="factor">معامل التحويل</span></label>
+                    <div style="background:var(--input-bg); border-radius:18px; padding:0.85rem 1.2rem; border:2px solid var(--input-border); color:var(--text-secondary); font-weight:700; text-align:center; font-size:1.1rem;">
+                        1 م² = 10.76 فوت²
+                    </div>
+                    <span class="hint" style="text-align:center;">ثابت</span>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div class="result-area" id="resultArea">
+                <div class="result-row">
+                    <span class="result-label"><i class="fas fa-football-ball"></i> <span data-key="footResult">سعر الفوت</span></span>
+                    <span class="result-value" id="footPriceResult">-- <small data-key="footUnit">/فوت²</small></span>
+                </div>
+                <div class="result-row" style="border-bottom: none;">
+                    <span class="result-label"><i class="fas fa-home"></i> <span data-key="totalResult">سعر الأرض النهائي</span></span>
+                    <span class="result-value" id="totalPriceResult">-- <small data-key="totalUnit"></small></span>
+                </div>
+                <div class="result-row" style="border-bottom: none; padding-top:0.8rem; border-top:1px solid var(--input-border);">
+                    <span class="live-indicator">
+                        <span class="pulse-dot"></span> 
+                        <span data-key="live">تحديث فوري</span>
+                    </span>
+                    <span class="mode-info" id="modeInfo">
+                        <i class="fas fa-info-circle"></i>
+                        <span data-key="modeIndicator">الوضع: سعر الفوت من السعر الكامل</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="action-buttons">
+                <button class="btn" id="calculateBtn"><i class="fas fa-sync-alt fa-fw"></i> <span data-key="calculate">حساب</span></button>
+                <button class="btn btn-secondary" id="clearBtn"><i class="fas fa-eraser fa-fw"></i> <span data-key="clear">مسح</span></button>
+            </div>
+
+            <!-- Footer -->
+            <div class="footnote">
+                <span><i class="fas fa-check-circle"></i> <span data-key="footnote1">حساب دقيق حسب المعادلات</span></span>
+                <span><i class="fas fa-arrow-left"></i> <span data-key="footnote2">سعر الفوت = السعر الكامل ÷ (المساحة × 10.76)</span></span>
+                <span><i class="fas fa-arrow-left"></i> <span data-key="footnote3">السعر النهائي = المساحة × سعر الفوت × 10.76</span></span>
+            </div>
+
+            <!-- Copyright -->
+            <div class="copyright">
+                <i class="fas fa-copyright"></i> 2026 
+                <span class="heart">❤</span> 
+                <strong>Muharraqi</strong> 
+                <i class="fas fa-code"></i>
+                <span style="margin-right: 8px; font-size: 0.7rem; opacity: 0.6;">جميع الحقوق محفوظة</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ===== DOM Elements =====
+            const areaInput = document.getElementById('areaInput');
+            const totalPriceInput = document.getElementById('totalPriceInput');
+            const pricePerFootInput = document.getElementById('pricePerFootInput');
+            const footPriceResult = document.getElementById('footPriceResult');
+            const totalPriceResult = document.getElementById('totalPriceResult');
+            const calculateBtn = document.getElementById('calculateBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const themeToggle = document.getElementById('themeToggle');
+            const themeLabel = document.getElementById('themeLabel');
+            const fontSizeSelect = document.getElementById('fontSizeSelect');
+            const currencySelect = document.getElementById('currencySelect');
+            const body = document.body;
+            const modeBtns = document.querySelectorAll('.mode-btn');
+            const langBtns = document.querySelectorAll('.lang-btn');
+            const modeInfo = document.getElementById('modeInfo');
+            const totalPriceGroup = document.getElementById('totalPriceGroup');
+            const footPriceGroup = document.getElementById('footPriceGroup');
+            const totalStar = document.getElementById('totalStar');
+            const footStar = document.getElementById('footStar');
+            const totalHint = document.getElementById('totalHint');
+            const footHint = document.getElementById('footHint');
+
+            const CONV = 10.76;
+            let currentMode = 'footFromTotal';
+            let currentLang = 'ar';
+            let currentCurrency = 'BHD';
+
+            // ===== Arabic to English number converter =====
+            function convertArabicToEnglish(str) {
+                if (!str) return str;
+                const arabicNumbers = {
+                    '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
+                    '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9'
+                };
+                return str.replace(/[٠-٩]/g, function(match) {
+                    return arabicNumbers[match];
+                });
+            }
+
+            // ===== Currency Data =====
+            const currencies = {
+                BHD: { symbol: 'د.ب', name: 'دينار بحريني', nameEn: 'Bahraini Dinar', flag: '🇧🇭' },
+                SAR: { symbol: '﷼', name: 'ريال سعودي', nameEn: 'Saudi Riyal', flag: '🇸🇦' },
+                OMR: { symbol: 'ر.ع.', name: 'ريال عماني', nameEn: 'Omani Rial', flag: '🇴🇲' },
+                USD: { symbol: '$', name: 'دولار أمريكي', nameEn: 'US Dollar', flag: '🇺🇸' },
+                EUR: { symbol: '€', name: 'يورو', nameEn: 'Euro', flag: '🇪🇺' },
+                GBP: { symbol: '£', name: 'جنيه إسترليني', nameEn: 'Pound Sterling', flag: '🇬🇧' },
+                AED: { symbol: 'د.إ', name: 'درهم إماراتي', nameEn: 'UAE Dirham', flag: '🇦🇪' },
+                KWD: { symbol: 'د.ك', name: 'دينار كويتي', nameEn: 'Kuwaiti Dinar', flag: '🇰🇼' },
+                QAR: { symbol: 'ر.ق', name: 'ريال قطري', nameEn: 'Qatari Riyal', flag: '🇶🇦' },
+                EGP: { symbol: 'ج.م', name: 'جنيه مصري', nameEn: 'Egyptian Pound', flag: '🇪🇬' },
+                JOD: { symbol: 'د.أ', name: 'دينار أردني', nameEn: 'Jordanian Dinar', flag: '🇯🇴' },
+                DZD: { symbol: 'د.ج', name: 'دينار جزائري', nameEn: 'Algerian Dinar', flag: '🇩🇿' }
+            };
+
+            // ===== Translation Dictionary =====
+            const translations = {
+                ar: {
+                    theme: 'المظهر',
+                    dark: 'ليلي',
+                    light: 'نهاري',
+                    font: 'الخط',
+                    small: 'صغير',
+                    medium: 'وسط',
+                    large: 'كبير',
+                    reset: 'إعادة ضبط',
+                    currency: 'العملة',
+                    title: 'بناء',
+                    subtitle: 'احسب سعر الفوت أو السعر النهائي بدقة',
+                    mode1: 'سعر الفوت ← من السعر الكامل',
+                    mode2: 'السعر النهائي ← من سعر الفوت',
+                    area: 'مساحة الأرض',
+                    areaHint: 'مطلوب في كلا الوضعين',
+                    totalPrice: 'سعر الأرض الكامل',
+                    totalHint: 'مطلوب لحساب سعر الفوت',
+                    footPrice: 'سعر الفوت',
+                    footHint: 'مطلوب لحساب السعر النهائي',
+                    factor: 'معامل التحويل',
+                    footResult: 'سعر الفوت',
+                    footUnit: '/فوت²',
+                    totalResult: 'سعر الأرض النهائي',
+                    totalUnit: '',
+                    live: 'تحديث فوري',
+                    calculate: 'حساب',
+                    clear: 'مسح',
+                    footnote1: 'حساب دقيق حسب المعادلات',
+                    footnote2: 'سعر الفوت = السعر الكامل ÷ (المساحة × 10.76)',
+                    footnote3: 'السعر النهائي = المساحة × سعر الفوت × 10.76',
+                    modeIndicator_foot: 'الوضع: حساب سعر الفوت من السعر الكامل',
+                    modeIndicator_total: 'الوضع: حساب السعر النهائي من سعر الفوت',
+                },
+                en: {
+                    theme: 'Theme',
+                    dark: 'Dark',
+                    light: 'Light',
+                    font: 'Font',
+                    small: 'Small',
+                    medium: 'Medium',
+                    large: 'Large',
+                    reset: 'Reset',
+                    currency: 'Currency',
+                    title: 'Binaa',
+                    subtitle: 'Calculate foot price or total price accurately',
+                    mode1: 'Foot Price ← from Total',
+                    mode2: 'Total Price ← from Foot',
+                    area: 'Land Area',
+                    areaHint: 'Required for both modes',
+                    totalPrice: 'Total Land Price',
+                    totalHint: 'Required to calculate foot price',
+                    footPrice: 'Foot Price',
+                    footHint: 'Required to calculate total price',
+                    factor: 'Conversion Factor',
+                    footResult: 'Foot Price',
+                    footUnit: '/ft²',
+                    totalResult: 'Total Land Price',
+                    totalUnit: '',
+                    live: 'Live Update',
+                    calculate: 'Calculate',
+                    clear: 'Clear',
+                    footnote1: 'Accurate calculation based on formulas',
+                    footnote2: 'Foot Price = Total ÷ (Area × 10.76)',
+                    footnote3: 'Total Price = Area × Foot Price × 10.76',
+                    modeIndicator_foot: 'Mode: Foot Price from Total',
+                    modeIndicator_total: 'Mode: Total Price from Foot',
+                }
+            };
+
+            // ===== Helper: Format number with commas =====
+            function formatNumber(num) {
+                if (num === null || num === undefined || isNaN(num)) return '';
+                const rounded = Math.round(num * 100) / 100;
+                const parts = rounded.toFixed(2).split('.');
+                const integerPart = parts[0];
+                const decimalPart = parts[1];
+                const withCommas = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                return decimalPart ? `${withCommas}.${decimalPart}` : withCommas;
+            }
+
+            // ===== Helper: Parse number from formatted string =====
+            function parseNumber(str) {
+                if (!str) return NaN;
+                // First convert Arabic numbers to English
+                const englishStr = convertArabicToEnglish(str);
+                const cleaned = englishStr.replace(/,/g, '').trim();
+                return parseFloat(cleaned);
+            }
+
+            // ===== Auto-convert Arabic to English on input =====
+            function autoConvertToEnglish(input) {
+                input.addEventListener('input', function() {
+                    const hasArabic = /[٠-٩]/.test(this.value);
+                    if (hasArabic) {
+                        this.value = convertArabicToEnglish(this.value);
+                    }
+                });
+            }
+
+            // ===== Update Currency Display =====
+            function updateCurrencyDisplay() {
+                const currency = currencies[currentCurrency];
+                if (!currency) return;
+
+                const footUnit = document.querySelector('[data-key="footUnit"]');
+                const totalUnit = document.querySelector('[data-key="totalUnit"]');
+                
+                if (footUnit) {
+                    footUnit.textContent = ` ${currency.symbol}/فوت²`;
+                }
+                if (totalUnit) {
+                    totalUnit.textContent = ` ${currency.symbol}`;
+                }
+
+                updateResults();
+            }
+
+            // ===== Update UI Based on Mode =====
+            function updateModeUI() {
+                const isFootMode = currentMode === 'footFromTotal';
+                
+                if (isFootMode) {
+                    totalPriceGroup.classList.remove('disabled');
+                    totalPriceInput.disabled = false;
+                    totalStar.style.display = 'inline';
+                    totalHint.textContent = translations[currentLang].totalHint;
+                    totalHint.classList.add('active-hint');
+                    
+                    footPriceGroup.classList.add('disabled');
+                    pricePerFootInput.disabled = true;
+                    footStar.style.display = 'none';
+                    footHint.textContent = '⚠️ غير مطلوب في هذا الوضع';
+                    footHint.classList.remove('active-hint');
+                } else {
+                    totalPriceGroup.classList.add('disabled');
+                    totalPriceInput.disabled = true;
+                    totalStar.style.display = 'none';
+                    totalHint.textContent = '⚠️ غير مطلوب في هذا الوضع';
+                    totalHint.classList.remove('active-hint');
+                    
+                    footPriceGroup.classList.remove('disabled');
+                    pricePerFootInput.disabled = false;
+                    footStar.style.display = 'inline';
+                    footHint.textContent = translations[currentLang].footHint;
+                    footHint.classList.add('active-hint');
+                }
+                
+                const key = isFootMode ? 'modeIndicator_foot' : 'modeIndicator_total';
+                const indicatorSpan = modeInfo.querySelector('[data-key="modeIndicator"]');
+                if (indicatorSpan) {
+                    indicatorSpan.textContent = translations[currentLang][key] || key;
+                }
+            }
+
+            // ===== Translation Function =====
+            function updateLanguage(lang) {
+                currentLang = lang;
+                document.querySelectorAll('[data-key]').forEach(el => {
+                    const key = el.getAttribute('data-key');
+                    if (translations[lang] && translations[lang][key] !== undefined) {
+                        if (el.tagName === 'INPUT' && el.hasAttribute('placeholder')) {
+                            // handled separately
+                        } else if (el.tagName === 'OPTION') {
+                            // skip
+                        } else {
+                            el.textContent = translations[lang][key];
+                        }
+                    }
+                });
+                
+                const placeholders = {
+                    area: 'areaHint',
+                    totalPrice: 'totalHint',
+                    footPrice: 'footHint'
+                };
+                const inputs = {
+                    area: areaInput,
+                    totalPrice: totalPriceInput,
+                    footPrice: pricePerFootInput
+                };
+                Object.keys(placeholders).forEach(key => {
+                    if (inputs[key]) {
+                        inputs[key].placeholder = translations[lang][placeholders[key]] || '';
+                    }
+                });
+
+                const isDark = !body.classList.contains('light-mode');
+                themeLabel.textContent = isDark ? translations[lang].light : translations[lang].dark;
+                themeToggle.innerHTML = isDark ? 
+                    `<i class="fas fa-sun"></i> <span id="themeLabel">${translations[lang].light}</span>` : 
+                    `<i class="fas fa-moon"></i> <span id="themeLabel">${translations[lang].dark}</span>`;
+                
+                updateModeUI();
+                updateCurrencyDisplay();
+            }
+
+            // ===== Calculation Functions =====
+            function calculateFootFromTotal(area, total) {
+                if (!area || area <= 0 || !total || total <= 0) return null;
+                return total / (area * CONV);
+            }
+
+            function calculateTotalFromFoot(area, footPrice) {
+                if (!area || area <= 0 || !footPrice || footPrice <= 0) return null;
+                return area * footPrice * CONV;
+            }
+
+            function updateResults() {
+                const area = parseNumber(areaInput.value);
+                const totalPrice = parseNumber(totalPriceInput.value);
+                const footPrice = parseNumber(pricePerFootInput.value);
+                const isFootMode = currentMode === 'footFromTotal';
+                const currency = currencies[currentCurrency];
+
+                let footResult = null;
+                let totalResult = null;
+
+                if (isFootMode) {
+                    if (!isNaN(area) && area > 0 && !isNaN(totalPrice) && totalPrice > 0) {
+                        footResult = calculateFootFromTotal(area, totalPrice);
+                    }
+                    if (!isNaN(area) && area > 0 && !isNaN(footPrice) && footPrice > 0) {
+                        totalResult = calculateTotalFromFoot(area, footPrice);
+                    }
+                } else {
+                    if (!isNaN(area) && area > 0 && !isNaN(footPrice) && footPrice > 0) {
+                        totalResult = calculateTotalFromFoot(area, footPrice);
+                    }
+                    if (!isNaN(area) && area > 0 && !isNaN(totalPrice) && totalPrice > 0) {
+                        footResult = calculateFootFromTotal(area, totalPrice);
+                    }
+                }
+
+                const symbol = currency ? currency.symbol : '';
+
+                if (footResult !== null && isFinite(footResult)) {
+                    footPriceResult.innerHTML = `${formatNumber(footResult)} <span class="currency-symbol-display">${symbol}</span><small> /فوت²</small>`;
+                    footPriceResult.classList.remove('placeholder');
+                } else {
+                    footPriceResult.innerHTML = `-- <span class="currency-symbol-display">${symbol}</span><small> /فوت²</small>`;
+                    footPriceResult.classList.add('placeholder');
+                }
+
+                if (totalResult !== null && isFinite(totalResult)) {
+                    totalPriceResult.innerHTML = `${formatNumber(totalResult)} <span class="currency-symbol-display">${symbol}</span>`;
+                    totalPriceResult.classList.remove('placeholder');
+                } else {
+                    totalPriceResult.innerHTML = `-- <span class="currency-symbol-display">${symbol}</span>`;
+                    totalPriceResult.classList.add('placeholder');
+                }
+            }
+
+            // ===== Format inputs on blur =====
+            function formatInputs() {
+                const area = parseNumber(areaInput.value);
+                const total = parseNumber(totalPriceInput.value);
+                const foot = parseNumber(pricePerFootInput.value);
+                
+                if (!isNaN(area) && area > 0) {
+                    areaInput.value = formatNumber(area);
+                }
+                if (!isNaN(total) && total > 0) {
+                    totalPriceInput.value = formatNumber(total);
+                }
+                if (!isNaN(foot) && foot > 0) {
+                    pricePerFootInput.value = formatNumber(foot);
+                }
+                updateResults();
+            }
+
+            // ===== Event Listeners =====
+
+            // Auto-convert Arabic numbers to English
+            autoConvertToEnglish(areaInput);
+            autoConvertToEnglish(totalPriceInput);
+            autoConvertToEnglish(pricePerFootInput);
+
+            // Mode buttons
+            modeBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    modeBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentMode = this.dataset.mode;
+                    updateModeUI();
+                    updateResults();
+                });
+            });
+
+            // Currency change
+            currencySelect.addEventListener('change', function() {
+                currentCurrency = this.value;
+                updateCurrencyDisplay();
+                updateResults();
+            });
+
+            // Calculate
+            calculateBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                formatInputs();
+                updateResults();
+            });
+
+            // Clear
+            clearBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                areaInput.value = '';
+                totalPriceInput.value = '';
+                pricePerFootInput.value = '';
+                const symbol = currencies[currentCurrency]?.symbol || '';
+                footPriceResult.innerHTML = `-- <span class="currency-symbol-display">${symbol}</span><small> /فوت²</small>`;
+                totalPriceResult.innerHTML = `-- <span class="currency-symbol-display">${symbol}</span>`;
+                footPriceResult.classList.add('placeholder');
+                totalPriceResult.classList.add('placeholder');
+            });
+
+            // Reset
+            resetBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                areaInput.value = '300';
+                totalPriceInput.value = '90,000';
+                pricePerFootInput.value = '28';
+                currencySelect.value = 'BHD';
+                currentCurrency = 'BHD';
+                
+                body.classList.remove('light-mode');
+                themeLabel.textContent = translations[currentLang].light;
+                themeToggle.innerHTML = `<i class="fas fa-sun"></i> <span id="themeLabel">${translations[currentLang].light}</span>`;
+                fontSizeSelect.value = 'medium';
+                body.className = body.className.replace(/font-(small|medium|large)/g, '').trim();
+                body.classList.add('font-medium');
+                
+                modeBtns.forEach(b => b.classList.remove('active'));
+                document.querySelector('[data-mode="footFromTotal"]').classList.add('active');
+                currentMode = 'footFromTotal';
+                updateModeUI();
+                updateCurrencyDisplay();
+                updateResults();
+            });
+
+            // Theme toggle
+            themeToggle.addEventListener('click', function() {
+                body.classList.toggle('light-mode');
+                const isDark = !body.classList.contains('light-mode');
+                themeLabel.textContent = isDark ? translations[currentLang].light : translations[currentLang].dark;
+                themeToggle.innerHTML = isDark ? 
+                    `<i class="fas fa-sun"></i> <span id="themeLabel">${translations[currentLang].light}</span>` : 
+                    `<i class="fas fa-moon"></i> <span id="themeLabel">${translations[currentLang].dark}</span>`;
+            });
+
+            // Font size
+            fontSizeSelect.addEventListener('change', function() {
+                const val = this.value;
+                body.classList.remove('font-small', 'font-medium', 'font-large');
+                body.classList.add(`font-${val}`);
+            });
+
+            // Language toggle
+            langBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    langBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    const lang = this.dataset.lang;
+                    updateLanguage(lang);
+                    updateResults();
+                });
+            });
+
+            // Auto update on input change
+            [areaInput, totalPriceInput, pricePerFootInput].forEach(input => {
+                input.addEventListener('input', updateResults);
+                input.addEventListener('change', formatInputs);
+                input.addEventListener('blur', formatInputs);
+            });
+
+            // Enter key
+            document.querySelectorAll('input').forEach(inp => {
+                inp.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        formatInputs();
+                        calculateBtn.click();
+                    }
+                });
+            });
+
+            // ===== Init =====
+            window.addEventListener('DOMContentLoaded', function() {
+                body.classList.add('font-medium');
+                body.classList.remove('light-mode');
+                updateLanguage('ar');
+                updateModeUI();
+                updateCurrencyDisplay();
+                formatInputs();
+                updateResults();
+            });
+
+        })();
+    </script>
+</body>
+</html>

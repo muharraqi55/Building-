@@ -51,7 +51,7 @@
             --shadow-hover: 0 20px 70px rgba(0, 0, 0, 0.15);
         }
 
-        /* Font size classes - applied to html to scale all 'rem' units proportionally */
+        /* Font size classes - applied to html element */
         html.font-size-small {
             font-size: 14px !important;
         }
@@ -62,6 +62,7 @@
             font-size: 21px !important;
         }
 
+        /* ===== Reset & Base ===== */
         * {
             margin: 0;
             padding: 0;
@@ -72,7 +73,7 @@
         body {
             background: var(--bg-page);
             color: var(--text-primary);
-            font-size: 1rem; /* يستخدم 1rem ليتأثر بحجم الخط الأساسي في html بشكل طبيعي */
+            font-size: 1rem;
             transition: var(--transition);
             min-height: 100vh;
             display: flex;
@@ -768,9 +769,9 @@
             <div class="control-group">
                 <label><i class="fas fa-font"></i> <span data-key="font">الخط</span></label>
                 <div class="font-buttons">
-                    <button class="font-btn" onclick="setFontSize('small')" title="صغير"><i class="fas fa-font"></i> ص</button>
-                    <button class="font-btn active-font" onclick="setFontSize('medium')" title="وسط"><i class="fas fa-font"></i> م</button>
-                    <button class="font-btn" onclick="setFontSize('large')" title="كبير"><i class="fas fa-font"></i> ك</button>
+                    <button class="font-btn" id="fontSmall" title="صغير"><i class="fas fa-font"></i> ص</button>
+                    <button class="font-btn active-font" id="fontMedium" title="وسط"><i class="fas fa-font"></i> م</button>
+                    <button class="font-btn" id="fontLarge" title="كبير"><i class="fas fa-font"></i> ك</button>
                 </div>
             </div>
             <div class="control-group">
@@ -904,26 +905,63 @@
     </div>
 
     <script>
-        // ===== GLOBAL FONT SIZE FUNCTION =====
-        function setFontSize(size) {
-            // Remove all font size classes from html element (documentElement)
-            document.documentElement.classList.remove('font-size-small', 'font-size-medium', 'font-size-large');
-            // Add the selected class to html element
-            document.documentElement.classList.add('font-size-' + size);
-            
-            // Update button states
-            document.querySelectorAll('.font-btn').forEach(function(btn) {
-                btn.classList.remove('active-font');
-                if (btn.getAttribute('onclick') === "setFontSize('" + size + "')") {
-                    btn.classList.add('active-font');
-                }
-            });
-        }
-
-        // ===== DOM READY =====
         document.addEventListener('DOMContentLoaded', function() {
-            // Set default font size
-            setFontSize('medium');
+            // ===== FONT SIZE CONTROL =====
+            const fontSmall = document.getElementById('fontSmall');
+            const fontMedium = document.getElementById('fontMedium');
+            const fontLarge = document.getElementById('fontLarge');
+            const htmlElement = document.documentElement;
+
+            function setFontSize(size) {
+                htmlElement.classList.remove('font-size-small', 'font-size-medium', 'font-size-large');
+                htmlElement.classList.add('font-size-' + size);
+                
+                [fontSmall, fontMedium, fontLarge].forEach(btn => btn.classList.remove('active-font'));
+                if (size === 'small') fontSmall.classList.add('active-font');
+                else if (size === 'medium') fontMedium.classList.add('active-font');
+                else if (size === 'large') fontLarge.classList.add('active-font');
+            }
+
+            fontSmall.addEventListener('click', function() { setFontSize('small'); });
+            fontMedium.addEventListener('click', function() { setFontSize('medium'); });
+            fontLarge.addEventListener('click', function() { setFontSize('large'); });
+
+            // ===== INPUT VALIDATION - ONLY NUMBERS AND COMMAS =====
+            function validateNumberInput(input) {
+                input.addEventListener('input', function() {
+                    // Allow only digits, commas, and decimal point
+                    // Also allow backspace, delete, arrows, etc.
+                    const cursorPosition = this.selectionStart;
+                    const oldValue = this.value;
+                    
+                    // Remove any character that is not a digit, comma, or decimal point
+                    let newValue = this.value.replace(/[^0-9,.]/g, '');
+                    
+                    // Remove multiple consecutive commas or dots
+                    newValue = newValue.replace(/,{2,}/g, ',');
+                    newValue = newValue.replace(/\.{2,}/g, '.');
+                    
+                    // If value changed, update it
+                    if (oldValue !== newValue) {
+                        this.value = newValue;
+                        // Trigger the input event to update calculations
+                        this.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                });
+                
+                // Also handle paste events
+                input.addEventListener('paste', function(e) {
+                    setTimeout(() => {
+                        let newValue = this.value.replace(/[^0-9,.]/g, '');
+                        newValue = newValue.replace(/,{2,}/g, ',');
+                        newValue = newValue.replace(/\.{2,}/g, '.');
+                        if (this.value !== newValue) {
+                            this.value = newValue;
+                            this.dispatchEvent(new Event('input', { bubbles: true }));
+                        }
+                    }, 0);
+                });
+            }
 
             // ===== DOM Elements =====
             const areaInput = document.getElementById('areaInput');
@@ -948,6 +986,11 @@
             const footStar = document.getElementById('footStar');
             const totalHint = document.getElementById('totalHint');
             const footHint = document.getElementById('footHint');
+
+            // Apply validation to all number inputs
+            validateNumberInput(areaInput);
+            validateNumberInput(totalPriceInput);
+            validateNumberInput(pricePerFootInput);
 
             const CONV = 10.76;
             let currentMode = 'footFromTotal';
@@ -1315,7 +1358,6 @@
                 themeLabel.textContent = translations[currentLang].light;
                 themeToggle.innerHTML = `<i class="fas fa-sun"></i> <span id="themeLabel">${translations[currentLang].light}</span>`;
                 
-                // Reset font to medium
                 setFontSize('medium');
                 
                 modeBtns.forEach(b => b.classList.remove('active'));
@@ -1362,6 +1404,7 @@
             });
 
             // Initial setup
+            setFontSize('medium');
             body.classList.remove('light-mode');
             updateLanguage('ar');
             updateModeUI();

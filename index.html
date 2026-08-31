@@ -51,7 +51,6 @@
             --shadow-hover: 0 20px 70px rgba(0, 0, 0, 0.15);
         }
 
-        /* Font size classes - applied to html element */
         html.font-size-small {
             font-size: 14px !important;
         }
@@ -62,7 +61,6 @@
             font-size: 21px !important;
         }
 
-        /* ===== Reset & Base ===== */
         * {
             margin: 0;
             padding: 0;
@@ -455,7 +453,13 @@
             line-height: 1;
         }
 
-        .input-group input {
+        .input-group .input-wrapper {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .input-group .input-wrapper input {
             background: var(--input-bg);
             border: 2px solid var(--input-border);
             border-radius: 18px;
@@ -468,23 +472,56 @@
             backdrop-filter: blur(4px);
             direction: ltr;
             text-align: right;
+            flex: 1;
         }
 
-        .input-group input:focus:not(:disabled) {
+        .input-group .input-wrapper input:focus:not(:disabled) {
             border-color: var(--accent);
             box-shadow: 0 0 0 6px var(--accent-glow);
         }
 
-        .input-group input:disabled {
+        .input-group .input-wrapper input:disabled {
             background: var(--input-disabled);
             cursor: not-allowed;
             opacity: 0.6;
         }
 
-        .input-group input::placeholder {
+        .input-group .input-wrapper input::placeholder {
             color: var(--text-secondary);
             opacity: 0.35;
             text-align: right;
+        }
+
+        .input-group .input-wrapper .apply-btn {
+            background: var(--accent);
+            border: none;
+            color: #000;
+            padding: 0.85rem 1.2rem;
+            border-radius: 18px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            min-width: 90px;
+            justify-content: center;
+        }
+
+        .input-group .input-wrapper .apply-btn:hover {
+            background: var(--accent-hover);
+            transform: scale(1.02);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .input-group .input-wrapper .apply-btn:active {
+            transform: scale(0.95);
+        }
+
+        .input-group .input-wrapper .apply-btn i {
+            font-size: 0.9rem;
         }
 
         .input-group .hint {
@@ -833,7 +870,9 @@
                         <span data-key="area">مساحة الأرض</span>
                         <span class="required-star">*</span>
                     </label>
-                    <input type="text" id="areaInput" placeholder="مثال: 300" value="300" />
+                    <div class="input-wrapper">
+                        <input type="text" id="areaInput" placeholder="مثال: 300" value="300" />
+                    </div>
                     <span class="hint active-hint" data-key="areaHint">مطلوب في كلا الوضعين</span>
                 </div>
                 <div class="input-group" id="totalPriceGroup">
@@ -842,8 +881,13 @@
                         <span data-key="totalPrice">سعر الأرض الكامل</span>
                         <span class="required-star" id="totalStar">*</span>
                     </label>
-                    <input type="text" id="totalPriceInput" placeholder="مثال: 90,000" value="90,000" />
-                    <span class="hint" id="totalHint" data-key="totalHint">مطلوب لحساب سعر الفوت</span>
+                    <div class="input-wrapper">
+                        <input type="text" id="totalPriceInput" placeholder="مثال: 90,000" value="90,000" />
+                        <button class="apply-btn" id="convertToThousands" title="تحويل إلى آلاف">
+                            <i class="fas fa-arrow-right"></i> آلاف
+                        </button>
+                    </div>
+                    <span class="hint" id="totalHint" data-key="totalHint">📌 اكتب الرقم ثم اضغط "آلاف" للتحويل (٩ ← 9,000)</span>
                 </div>
                 <div class="input-group" id="footPriceGroup">
                     <label>
@@ -851,7 +895,9 @@
                         <span data-key="footPrice">سعر الفوت</span>
                         <span class="required-star" id="footStar">*</span>
                     </label>
-                    <input type="text" id="pricePerFootInput" placeholder="مثال: 28" value="28" />
+                    <div class="input-wrapper">
+                        <input type="text" id="pricePerFootInput" placeholder="مثال: 28" value="28" />
+                    </div>
                     <span class="hint" id="footHint" data-key="footHint">مطلوب لحساب السعر النهائي</span>
                 </div>
                 <div class="input-group">
@@ -926,46 +972,104 @@
             fontMedium.addEventListener('click', function() { setFontSize('medium'); });
             fontLarge.addEventListener('click', function() { setFontSize('large'); });
 
-            // ===== INPUT VALIDATION - ONLY NUMBERS AND COMMAS =====
-            function validateNumberInput(input) {
-                input.addEventListener('input', function() {
-                    // Allow only digits, commas, and decimal point
-                    // Also allow backspace, delete, arrows, etc.
-                    const cursorPosition = this.selectionStart;
-                    const oldValue = this.value;
-                    
-                    // Remove any character that is not a digit, comma, or decimal point
-                    let newValue = this.value.replace(/[^0-9,.]/g, '');
-                    
-                    // Remove multiple consecutive commas or dots
-                    newValue = newValue.replace(/,{2,}/g, ',');
-                    newValue = newValue.replace(/\.{2,}/g, '.');
-                    
-                    // If value changed, update it
-                    if (oldValue !== newValue) {
-                        this.value = newValue;
-                        // Trigger the input event to update calculations
-                        this.dispatchEvent(new Event('input', { bubbles: true }));
-                    }
+            // ===== CONVERT TO THOUSANDS - ONLY FOR TOTAL PRICE =====
+            function formatNumberWithCommas(num) {
+                if (num === null || num === undefined || isNaN(num)) return '';
+                // تقريب الرقم إلى أقرب عدد صحيح (بدون كسور)
+                const rounded = Math.round(num);
+                // تحويل إلى نص وتقسيم إلى أجزاء
+                const str = rounded.toString();
+                // إضافة الفواصل كل 3 أرقام
+                const withCommas = str.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                return withCommas;
+            }
+
+            function convertArabicToEnglish(str) {
+                if (!str) return str;
+                const arabicNumbers = {
+                    '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
+                    '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9'
+                };
+                return str.replace(/[٠-٩]/g, function(match) {
+                    return arabicNumbers[match];
                 });
-                
-                // Also handle paste events
-                input.addEventListener('paste', function(e) {
+            }
+
+            const totalPriceInput = document.getElementById('totalPriceInput');
+            const convertBtn = document.getElementById('convertToThousands');
+
+            function convertToThousands() {
+                let value = totalPriceInput.value;
+                if (!value || value === '') {
+                    totalPriceInput.placeholder = '⚠️ ادخل رقم أولاً!';
                     setTimeout(() => {
-                        let newValue = this.value.replace(/[^0-9,.]/g, '');
-                        newValue = newValue.replace(/,{2,}/g, ',');
-                        newValue = newValue.replace(/\.{2,}/g, '.');
-                        if (this.value !== newValue) {
-                            this.value = newValue;
-                            this.dispatchEvent(new Event('input', { bubbles: true }));
-                        }
-                    }, 0);
+                        totalPriceInput.placeholder = 'مثال: 90,000';
+                    }, 2000);
+                    return;
+                }
+                
+                // الخطوة 1: تحويل الأرقام العربية إلى إنجليزية
+                value = convertArabicToEnglish(value);
+                
+                // الخطوة 2: إزالة أي أحرف غير رقمية (ما عدا الفاصلة والنقطة)
+                let cleaned = value.replace(/[^0-9.]/g, '');
+                
+                // الخطوة 3: إزالة النقاط المتكررة
+                cleaned = cleaned.replace(/\.{2,}/g, '.');
+                
+                // الخطوة 4: استخراج الرقم الصحيح (إزالة النقطة العشرية إن وجدت)
+                let numStr = cleaned;
+                if (numStr.includes('.')) {
+                    numStr = numStr.split('.')[0]; // نأخذ الجزء الصحيح فقط
+                }
+                
+                // الخطوة 5: تحويل إلى رقم وضربه في 1000
+                const num = parseInt(numStr);
+                if (!isNaN(num) && num > 0) {
+                    const multiplied = num * 1000;
+                    totalPriceInput.value = formatNumberWithCommas(multiplied);
+                    totalPriceInput.dispatchEvent(new Event('input', { bubbles: true }));
+                } else {
+                    totalPriceInput.placeholder = '⚠️ أدخل أرقاماً فقط!';
+                    setTimeout(() => {
+                        totalPriceInput.placeholder = 'مثال: 90,000';
+                    }, 2000);
+                }
+            }
+
+            // عند الضغط على زر "آلاف"
+            convertBtn.addEventListener('click', convertToThousands);
+
+            // عند الضغط على Enter في حقل السعر
+            totalPriceInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    convertToThousands();
+                }
+            });
+
+            // ===== INPUT VALIDATION - ONLY NUMBERS =====
+            function setupInputValidation(input) {
+                input.addEventListener('input', function() {
+                    let value = this.value;
+                    // تحويل الأرقام العربية إلى إنجليزية
+                    const hasArabic = /[٠-٩]/.test(value);
+                    if (hasArabic) {
+                        value = convertArabicToEnglish(value);
+                        this.value = value;
+                    }
+                    // إزالة أي أحرف غير رقمية (ما عدا الفاصلة والنقطة)
+                    let cleaned = value.replace(/[^0-9,.]/g, '');
+                    cleaned = cleaned.replace(/,{2,}/g, ',');
+                    cleaned = cleaned.replace(/\.{2,}/g, '.');
+                    if (this.value !== cleaned) {
+                        this.value = cleaned;
+                    }
                 });
             }
 
             // ===== DOM Elements =====
             const areaInput = document.getElementById('areaInput');
-            const totalPriceInput = document.getElementById('totalPriceInput');
             const pricePerFootInput = document.getElementById('pricePerFootInput');
             const footPriceResult = document.getElementById('footPriceResult');
             const totalPriceResult = document.getElementById('totalPriceResult');
@@ -987,25 +1091,31 @@
             const totalHint = document.getElementById('totalHint');
             const footHint = document.getElementById('footHint');
 
-            // Apply validation to all number inputs
-            validateNumberInput(areaInput);
-            validateNumberInput(totalPriceInput);
-            validateNumberInput(pricePerFootInput);
+            // تفعيل التحقق على جميع الحقول
+            [areaInput, totalPriceInput, pricePerFootInput].forEach(input => {
+                setupInputValidation(input);
+            });
 
             const CONV = 10.76;
             let currentMode = 'footFromTotal';
             let currentLang = 'ar';
             let currentCurrency = 'BHD';
 
-            function convertArabicToEnglish(str) {
-                if (!str) return str;
-                const arabicNumbers = {
-                    '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
-                    '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9'
-                };
-                return str.replace(/[٠-٩]/g, function(match) {
-                    return arabicNumbers[match];
-                });
+            function parseNumber(str) {
+                if (!str) return NaN;
+                const englishStr = convertArabicToEnglish(str);
+                const cleaned = englishStr.replace(/,/g, '').trim();
+                return parseFloat(cleaned);
+            }
+
+            function formatNumber(num) {
+                if (num === null || num === undefined || isNaN(num)) return '';
+                const rounded = Math.round(num * 100) / 100;
+                const parts = rounded.toFixed(2).split('.');
+                const integerPart = parts[0];
+                const decimalPart = parts[1];
+                const withCommas = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                return decimalPart ? `${withCommas}.${decimalPart}` : withCommas;
             }
 
             const currencies = {
@@ -1038,7 +1148,7 @@
                     area: 'مساحة الأرض',
                     areaHint: 'مطلوب في كلا الوضعين',
                     totalPrice: 'سعر الأرض الكامل',
-                    totalHint: 'مطلوب لحساب سعر الفوت',
+                    totalHint: '📌 اكتب الرقم ثم اضغط "آلاف" للتحويل (٩ ← 9,000)',
                     footPrice: 'سعر الفوت',
                     footHint: 'مطلوب لحساب السعر النهائي',
                     factor: 'معامل التحويل',
@@ -1068,7 +1178,7 @@
                     area: 'Land Area',
                     areaHint: 'Required for both modes',
                     totalPrice: 'Total Land Price',
-                    totalHint: 'Required to calculate foot price',
+                    totalHint: '📌 Type number then press "Thousands" (9 → 9,000)',
                     footPrice: 'Foot Price',
                     footHint: 'Required to calculate total price',
                     factor: 'Conversion Factor',
@@ -1085,32 +1195,6 @@
                     modeIndicator_total: 'Mode: Show Total Price',
                 }
             };
-
-            function formatNumber(num) {
-                if (num === null || num === undefined || isNaN(num)) return '';
-                const rounded = Math.round(num * 100) / 100;
-                const parts = rounded.toFixed(2).split('.');
-                const integerPart = parts[0];
-                const decimalPart = parts[1];
-                const withCommas = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-                return decimalPart ? `${withCommas}.${decimalPart}` : withCommas;
-            }
-
-            function parseNumber(str) {
-                if (!str) return NaN;
-                const englishStr = convertArabicToEnglish(str);
-                const cleaned = englishStr.replace(/,/g, '').trim();
-                return parseFloat(cleaned);
-            }
-
-            function autoConvertToEnglish(input) {
-                input.addEventListener('input', function() {
-                    const hasArabic = /[٠-٩]/.test(this.value);
-                    if (hasArabic) {
-                        this.value = convertArabicToEnglish(this.value);
-                    }
-                });
-            }
 
             function updateCurrencyDisplay() {
                 const currency = currencies[currentCurrency];
@@ -1300,11 +1384,6 @@
                 updateResults();
             }
 
-            // Auto-convert Arabic numbers
-            autoConvertToEnglish(areaInput);
-            autoConvertToEnglish(totalPriceInput);
-            autoConvertToEnglish(pricePerFootInput);
-
             modeBtns.forEach(btn => {
                 btn.addEventListener('click', function() {
                     modeBtns.forEach(b => b.classList.remove('active'));
@@ -1391,16 +1470,6 @@
             [areaInput, totalPriceInput, pricePerFootInput].forEach(input => {
                 input.addEventListener('input', updateResults);
                 input.addEventListener('change', formatInputs);
-                input.addEventListener('blur', formatInputs);
-            });
-
-            document.querySelectorAll('input').forEach(inp => {
-                inp.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        formatInputs();
-                    }
-                });
             });
 
             // Initial setup

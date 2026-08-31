@@ -8,7 +8,6 @@
     <style>
         /* ===== CSS Variables & Themes ===== */
         :root {
-            /* Elegant Dark Theme - Original Design with Black */
             --bg-page: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0d0d0d 100%);
             --bg-card: rgba(20, 20, 20, 0.92);
             --bg-card-hover: rgba(30, 30, 30, 0.96);
@@ -32,7 +31,6 @@
             --shadow-hover: 0 20px 70px rgba(0, 0, 0, 0.9);
         }
 
-        /* Light Theme - Keep it clean */
         body.light-mode {
             --bg-page: linear-gradient(135deg, #e8edf5 0%, #d5dce6 100%);
             --bg-card: rgba(255, 255, 255, 0.92);
@@ -53,12 +51,17 @@
             --shadow-hover: 0 20px 70px rgba(0, 0, 0, 0.15);
         }
 
-        /* Font sizes */
-        .font-small { --font-size-base: 14px; }
-        .font-medium { --font-size-base: 17px; }
-        .font-large { --font-size-base: 21px; }
+        /* Font size classes - applied to html to scale all 'rem' units proportionally */
+        html.font-size-small {
+            font-size: 14px !important;
+        }
+        html.font-size-medium {
+            font-size: 17px !important;
+        }
+        html.font-size-large {
+            font-size: 21px !important;
+        }
 
-        /* ===== Reset & Base ===== */
         * {
             margin: 0;
             padding: 0;
@@ -69,7 +72,7 @@
         body {
             background: var(--bg-page);
             color: var(--text-primary);
-            font-size: var(--font-size-base);
+            font-size: 1rem; /* يستخدم 1rem ليتأثر بحجم الخط الأساسي في html بشكل طبيعي */
             transition: var(--transition);
             min-height: 100vh;
             display: flex;
@@ -79,7 +82,6 @@
             margin: 0;
         }
 
-        /* ===== App Container ===== */
         .app-wrapper {
             max-width: 950px;
             width: 100%;
@@ -91,7 +93,6 @@
             50% { transform: translateY(-6px); }
         }
 
-        /* ===== Control Bar ===== */
         .control-bar {
             background: var(--bg-card);
             backdrop-filter: blur(20px);
@@ -148,6 +149,13 @@
             box-shadow: 0 0 20px var(--accent-glow);
         }
 
+        .ctrl-btn.active-font {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
         .ctrl-select {
             background: var(--input-bg);
             border: 1px solid var(--input-border);
@@ -172,7 +180,43 @@
             color: var(--text-primary);
         }
 
-        /* ===== Main Card ===== */
+        .font-buttons {
+            display: flex;
+            gap: 0.4rem;
+        }
+
+        .font-btn {
+            background: var(--input-bg);
+            border: 2px solid var(--input-border);
+            color: var(--text-secondary);
+            padding: 0.4rem 0.9rem;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .font-btn:hover {
+            background: var(--accent-glow);
+            border-color: var(--accent);
+        }
+
+        .font-btn.active-font {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+            box-shadow: 0 0 15px var(--accent-glow);
+            transform: scale(1.05);
+        }
+
+        .font-btn i {
+            font-size: 0.8rem;
+        }
+
         .calculator-card {
             background: var(--bg-card);
             backdrop-filter: blur(20px);
@@ -277,7 +321,6 @@
             opacity: 0.8;
         }
 
-        /* ===== Mode Selection ===== */
         .mode-selector {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -303,6 +346,9 @@
             .card-header {
                 flex-direction: column;
                 align-items: stretch;
+            }
+            .font-buttons {
+                flex-wrap: wrap;
             }
         }
 
@@ -359,7 +405,6 @@
             transform: translateY(-2px);
         }
 
-        /* ===== Form Grid ===== */
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -384,7 +429,7 @@
         }
 
         .input-group.disabled {
-            opacity: 0.4;
+            opacity: 0.3;
             pointer-events: none;
         }
 
@@ -453,7 +498,11 @@
             font-weight: 500;
         }
 
-        /* ===== Result Area ===== */
+        .input-group .hint.disabled-hint {
+            color: var(--text-muted);
+            opacity: 0.5;
+        }
+
         .result-area {
             background: var(--input-bg);
             border-radius: 24px;
@@ -482,6 +531,11 @@
         .result-row:last-child {
             border-bottom: none;
             padding-bottom: 0;
+        }
+
+        .result-row.disabled-result {
+            opacity: 0.4;
+            pointer-events: none;
         }
 
         .result-label {
@@ -528,7 +582,12 @@
             opacity: 0.5;
         }
 
-        /* ===== Action Buttons ===== */
+        .result-value.zero-value {
+            -webkit-text-fill-color: var(--text-muted);
+            opacity: 0.3;
+            font-weight: 400;
+        }
+
         .action-buttons {
             display: flex;
             gap: 1rem;
@@ -578,7 +637,6 @@
             box-shadow: 0 8px 30px var(--accent-glow);
         }
 
-        /* ===== Footer ===== */
         .footnote {
             margin-top: 1.8rem;
             font-size: 0.75rem;
@@ -605,7 +663,6 @@
             font-size: 0.7rem;
         }
 
-        /* ===== Live Indicator ===== */
         .live-indicator {
             display: flex;
             align-items: center;
@@ -660,7 +717,6 @@
             color: var(--accent);
         }
 
-        /* ===== Copyright ===== */
         .copyright {
             text-align: center;
             margin-top: 1.5rem;
@@ -686,11 +742,22 @@
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.2); }
         }
+
+        .auto-badge {
+            display: inline-block;
+            background: var(--accent-glow);
+            color: var(--accent);
+            font-size: 0.6rem;
+            padding: 0.1rem 0.7rem;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-right: 8px;
+            border: 1px solid var(--accent);
+        }
     </style>
 </head>
 <body>
     <div class="app-wrapper">
-        <!-- Control Bar -->
         <div class="control-bar">
             <div class="control-group">
                 <label><i class="fas fa-palette"></i> <span data-key="theme">المظهر</span></label>
@@ -700,11 +767,11 @@
             </div>
             <div class="control-group">
                 <label><i class="fas fa-font"></i> <span data-key="font">الخط</span></label>
-                <select id="fontSizeSelect" class="ctrl-select">
-                    <option value="small" data-key="small">صغير</option>
-                    <option value="medium" selected data-key="medium">وسط</option>
-                    <option value="large" data-key="large">كبير</option>
-                </select>
+                <div class="font-buttons">
+                    <button class="font-btn" onclick="setFontSize('small')" title="صغير"><i class="fas fa-font"></i> ص</button>
+                    <button class="font-btn active-font" onclick="setFontSize('medium')" title="وسط"><i class="fas fa-font"></i> م</button>
+                    <button class="font-btn" onclick="setFontSize('large')" title="كبير"><i class="fas fa-font"></i> ك</button>
+                </div>
             </div>
             <div class="control-group">
                 <label><i class="fas fa-money-bill-wave"></i> <span data-key="currency">العملة</span></label>
@@ -728,7 +795,6 @@
             </div>
         </div>
 
-        <!-- Main Card -->
         <div class="calculator-card">
             <div class="card-header">
                 <h1>
@@ -743,23 +809,22 @@
             </div>
             <div class="subtitle" data-key="subtitle">
                 <i class="fas fa-ruler-combined"></i> احسب سعر الفوت أو السعر النهائي بدقة
+                <span class="auto-badge">تلقائي</span>
             </div>
 
-            <!-- Mode Selector -->
             <div class="mode-selector" id="modeSelector">
                 <button class="mode-btn active" data-mode="footFromTotal">
                     <i class="fas fa-arrow-right"></i>
-                    <span data-key="mode1">سعر الفوت ← من السعر الكامل</span>
+                    <span data-key="mode1">اظهار كم سعر الفوت</span>
                     <span class="mode-badge">1</span>
                 </button>
                 <button class="mode-btn" data-mode="totalFromFoot">
                     <i class="fas fa-arrow-left"></i>
-                    <span data-key="mode2">السعر النهائي ← من سعر الفوت</span>
+                    <span data-key="mode2">اظهار كم السعر النهائي</span>
                     <span class="mode-badge">2</span>
                 </button>
             </div>
 
-            <!-- Form -->
             <div class="form-grid">
                 <div class="input-group" id="areaGroup">
                     <label>
@@ -797,42 +862,37 @@
                 </div>
             </div>
 
-            <!-- Results -->
             <div class="result-area" id="resultArea">
-                <div class="result-row">
+                <div class="result-row" id="footResultRow">
                     <span class="result-label"><i class="fas fa-football-ball"></i> <span data-key="footResult">سعر الفوت</span></span>
                     <span class="result-value" id="footPriceResult">-- <small data-key="footUnit">/فوت²</small></span>
                 </div>
-                <div class="result-row" style="border-bottom: none;">
+                <div class="result-row" id="totalResultRow" style="border-bottom: none;">
                     <span class="result-label"><i class="fas fa-home"></i> <span data-key="totalResult">سعر الأرض النهائي</span></span>
                     <span class="result-value" id="totalPriceResult">-- <small data-key="totalUnit"></small></span>
                 </div>
                 <div class="result-row" style="border-bottom: none; padding-top:0.8rem; border-top:1px solid var(--input-border);">
                     <span class="live-indicator">
                         <span class="pulse-dot"></span> 
-                        <span data-key="live">تحديث فوري</span>
+                        <span data-key="live">تحديث تلقائي</span>
                     </span>
                     <span class="mode-info" id="modeInfo">
                         <i class="fas fa-info-circle"></i>
-                        <span data-key="modeIndicator">الوضع: سعر الفوت من السعر الكامل</span>
+                        <span data-key="modeIndicator">الوضع: اظهار سعر الفوت</span>
                     </span>
                 </div>
             </div>
 
-            <!-- Actions -->
             <div class="action-buttons">
-                <button class="btn" id="calculateBtn"><i class="fas fa-sync-alt fa-fw"></i> <span data-key="calculate">حساب</span></button>
-                <button class="btn btn-secondary" id="clearBtn"><i class="fas fa-eraser fa-fw"></i> <span data-key="clear">مسح</span></button>
+                <button class="btn btn-secondary" id="clearBtn" style="flex:1;"><i class="fas fa-eraser fa-fw"></i> <span data-key="clear">مسح</span></button>
             </div>
 
-            <!-- Footer -->
             <div class="footnote">
                 <span><i class="fas fa-check-circle"></i> <span data-key="footnote1">حساب دقيق حسب المعادلات</span></span>
                 <span><i class="fas fa-arrow-left"></i> <span data-key="footnote2">سعر الفوت = السعر الكامل ÷ (المساحة × 10.76)</span></span>
                 <span><i class="fas fa-arrow-left"></i> <span data-key="footnote3">السعر النهائي = المساحة × سعر الفوت × 10.76</span></span>
             </div>
 
-            <!-- Copyright -->
             <div class="copyright">
                 <i class="fas fa-copyright"></i> 2026 
                 <span class="heart">❤</span> 
@@ -844,8 +904,26 @@
     </div>
 
     <script>
-        (function() {
-            'use strict';
+        // ===== GLOBAL FONT SIZE FUNCTION =====
+        function setFontSize(size) {
+            // Remove all font size classes from html element (documentElement)
+            document.documentElement.classList.remove('font-size-small', 'font-size-medium', 'font-size-large');
+            // Add the selected class to html element
+            document.documentElement.classList.add('font-size-' + size);
+            
+            // Update button states
+            document.querySelectorAll('.font-btn').forEach(function(btn) {
+                btn.classList.remove('active-font');
+                if (btn.getAttribute('onclick') === "setFontSize('" + size + "')") {
+                    btn.classList.add('active-font');
+                }
+            });
+        }
+
+        // ===== DOM READY =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default font size
+            setFontSize('medium');
 
             // ===== DOM Elements =====
             const areaInput = document.getElementById('areaInput');
@@ -853,12 +931,12 @@
             const pricePerFootInput = document.getElementById('pricePerFootInput');
             const footPriceResult = document.getElementById('footPriceResult');
             const totalPriceResult = document.getElementById('totalPriceResult');
-            const calculateBtn = document.getElementById('calculateBtn');
+            const footResultRow = document.getElementById('footResultRow');
+            const totalResultRow = document.getElementById('totalResultRow');
             const clearBtn = document.getElementById('clearBtn');
             const resetBtn = document.getElementById('resetBtn');
             const themeToggle = document.getElementById('themeToggle');
             const themeLabel = document.getElementById('themeLabel');
-            const fontSizeSelect = document.getElementById('fontSizeSelect');
             const currencySelect = document.getElementById('currencySelect');
             const body = document.body;
             const modeBtns = document.querySelectorAll('.mode-btn');
@@ -876,7 +954,6 @@
             let currentLang = 'ar';
             let currentCurrency = 'BHD';
 
-            // ===== Arabic to English number converter =====
             function convertArabicToEnglish(str) {
                 if (!str) return str;
                 const arabicNumbers = {
@@ -888,7 +965,6 @@
                 });
             }
 
-            // ===== Currency Data =====
             const currencies = {
                 BHD: { symbol: 'د.ب', name: 'دينار بحريني', nameEn: 'Bahraini Dinar', flag: '🇧🇭' },
                 SAR: { symbol: '﷼', name: 'ريال سعودي', nameEn: 'Saudi Riyal', flag: '🇸🇦' },
@@ -904,22 +980,18 @@
                 DZD: { symbol: 'د.ج', name: 'دينار جزائري', nameEn: 'Algerian Dinar', flag: '🇩🇿' }
             };
 
-            // ===== Translation Dictionary =====
             const translations = {
                 ar: {
                     theme: 'المظهر',
                     dark: 'ليلي',
                     light: 'نهاري',
                     font: 'الخط',
-                    small: 'صغير',
-                    medium: 'وسط',
-                    large: 'كبير',
                     reset: 'إعادة ضبط',
                     currency: 'العملة',
                     title: 'بناء',
                     subtitle: 'احسب سعر الفوت أو السعر النهائي بدقة',
-                    mode1: 'سعر الفوت ← من السعر الكامل',
-                    mode2: 'السعر النهائي ← من سعر الفوت',
+                    mode1: 'اظهار كم سعر الفوت',
+                    mode2: 'اظهار كم السعر النهائي',
                     area: 'مساحة الأرض',
                     areaHint: 'مطلوب في كلا الوضعين',
                     totalPrice: 'سعر الأرض الكامل',
@@ -931,29 +1003,25 @@
                     footUnit: '/فوت²',
                     totalResult: 'سعر الأرض النهائي',
                     totalUnit: '',
-                    live: 'تحديث فوري',
-                    calculate: 'حساب',
+                    live: 'تحديث تلقائي',
                     clear: 'مسح',
                     footnote1: 'حساب دقيق حسب المعادلات',
                     footnote2: 'سعر الفوت = السعر الكامل ÷ (المساحة × 10.76)',
                     footnote3: 'السعر النهائي = المساحة × سعر الفوت × 10.76',
-                    modeIndicator_foot: 'الوضع: حساب سعر الفوت من السعر الكامل',
-                    modeIndicator_total: 'الوضع: حساب السعر النهائي من سعر الفوت',
+                    modeIndicator_foot: 'الوضع: اظهار سعر الفوت',
+                    modeIndicator_total: 'الوضع: اظهار السعر النهائي',
                 },
                 en: {
                     theme: 'Theme',
                     dark: 'Dark',
                     light: 'Light',
                     font: 'Font',
-                    small: 'Small',
-                    medium: 'Medium',
-                    large: 'Large',
                     reset: 'Reset',
                     currency: 'Currency',
                     title: 'Binaa',
                     subtitle: 'Calculate foot price or total price accurately',
-                    mode1: 'Foot Price ← from Total',
-                    mode2: 'Total Price ← from Foot',
+                    mode1: 'Show Foot Price',
+                    mode2: 'Show Total Price',
                     area: 'Land Area',
                     areaHint: 'Required for both modes',
                     totalPrice: 'Total Land Price',
@@ -965,18 +1033,16 @@
                     footUnit: '/ft²',
                     totalResult: 'Total Land Price',
                     totalUnit: '',
-                    live: 'Live Update',
-                    calculate: 'Calculate',
+                    live: 'Auto Update',
                     clear: 'Clear',
                     footnote1: 'Accurate calculation based on formulas',
                     footnote2: 'Foot Price = Total ÷ (Area × 10.76)',
                     footnote3: 'Total Price = Area × Foot Price × 10.76',
-                    modeIndicator_foot: 'Mode: Foot Price from Total',
-                    modeIndicator_total: 'Mode: Total Price from Foot',
+                    modeIndicator_foot: 'Mode: Show Foot Price',
+                    modeIndicator_total: 'Mode: Show Total Price',
                 }
             };
 
-            // ===== Helper: Format number with commas =====
             function formatNumber(num) {
                 if (num === null || num === undefined || isNaN(num)) return '';
                 const rounded = Math.round(num * 100) / 100;
@@ -987,16 +1053,13 @@
                 return decimalPart ? `${withCommas}.${decimalPart}` : withCommas;
             }
 
-            // ===== Helper: Parse number from formatted string =====
             function parseNumber(str) {
                 if (!str) return NaN;
-                // First convert Arabic numbers to English
                 const englishStr = convertArabicToEnglish(str);
                 const cleaned = englishStr.replace(/,/g, '').trim();
                 return parseFloat(cleaned);
             }
 
-            // ===== Auto-convert Arabic to English on input =====
             function autoConvertToEnglish(input) {
                 input.addEventListener('input', function() {
                     const hasArabic = /[٠-٩]/.test(this.value);
@@ -1006,7 +1069,6 @@
                 });
             }
 
-            // ===== Update Currency Display =====
             function updateCurrencyDisplay() {
                 const currency = currencies[currentCurrency];
                 if (!currency) return;
@@ -1024,7 +1086,6 @@
                 updateResults();
             }
 
-            // ===== Update UI Based on Mode =====
             function updateModeUI() {
                 const isFootMode = currentMode === 'footFromTotal';
                 
@@ -1038,20 +1099,30 @@
                     footPriceGroup.classList.add('disabled');
                     pricePerFootInput.disabled = true;
                     footStar.style.display = 'none';
-                    footHint.textContent = '⚠️ غير مطلوب في هذا الوضع';
+                    footHint.textContent = '🚫 غير مطلوب - سيتم حسابه تلقائياً';
                     footHint.classList.remove('active-hint');
+                    footHint.classList.add('disabled-hint');
+
+                    totalResultRow.classList.add('disabled-result');
+                    footResultRow.classList.remove('disabled-result');
+                    
                 } else {
                     totalPriceGroup.classList.add('disabled');
                     totalPriceInput.disabled = true;
                     totalStar.style.display = 'none';
-                    totalHint.textContent = '⚠️ غير مطلوب في هذا الوضع';
+                    totalHint.textContent = '🚫 غير مطلوب - سيتم حسابه تلقائياً';
                     totalHint.classList.remove('active-hint');
+                    totalHint.classList.add('disabled-hint');
                     
                     footPriceGroup.classList.remove('disabled');
                     pricePerFootInput.disabled = false;
                     footStar.style.display = 'inline';
                     footHint.textContent = translations[currentLang].footHint;
                     footHint.classList.add('active-hint');
+                    footHint.classList.remove('disabled-hint');
+
+                    totalResultRow.classList.remove('disabled-result');
+                    footResultRow.classList.remove('disabled-result');
                 }
                 
                 const key = isFootMode ? 'modeIndicator_foot' : 'modeIndicator_total';
@@ -1061,7 +1132,6 @@
                 }
             }
 
-            // ===== Translation Function =====
             function updateLanguage(lang) {
                 currentLang = lang;
                 document.querySelectorAll('[data-key]').forEach(el => {
@@ -1103,7 +1173,6 @@
                 updateCurrencyDisplay();
             }
 
-            // ===== Calculation Functions =====
             function calculateFootFromTotal(area, total) {
                 if (!area || area <= 0 || !total || total <= 0) return null;
                 return total / (area * CONV);
@@ -1128,38 +1197,49 @@
                     if (!isNaN(area) && area > 0 && !isNaN(totalPrice) && totalPrice > 0) {
                         footResult = calculateFootFromTotal(area, totalPrice);
                     }
-                    if (!isNaN(area) && area > 0 && !isNaN(footPrice) && footPrice > 0) {
-                        totalResult = calculateTotalFromFoot(area, footPrice);
-                    }
+                    totalResult = 0;
                 } else {
                     if (!isNaN(area) && area > 0 && !isNaN(footPrice) && footPrice > 0) {
                         totalResult = calculateTotalFromFoot(area, footPrice);
                     }
-                    if (!isNaN(area) && area > 0 && !isNaN(totalPrice) && totalPrice > 0) {
-                        footResult = calculateFootFromTotal(area, totalPrice);
-                    }
+                    footResult = 0;
                 }
 
                 const symbol = currency ? currency.symbol : '';
 
-                if (footResult !== null && isFinite(footResult)) {
-                    footPriceResult.innerHTML = `${formatNumber(footResult)} <span class="currency-symbol-display">${symbol}</span><small> /فوت²</small>`;
-                    footPriceResult.classList.remove('placeholder');
+                if (isFootMode) {
+                    if (footResult !== null && isFinite(footResult)) {
+                        footPriceResult.innerHTML = `${formatNumber(footResult)} <span class="currency-symbol-display">${symbol}</span><small> /فوت²</small>`;
+                        footPriceResult.classList.remove('placeholder');
+                        footPriceResult.classList.remove('zero-value');
+                    } else {
+                        footPriceResult.innerHTML = `-- <span class="currency-symbol-display">${symbol}</span><small> /فوت²</small>`;
+                        footPriceResult.classList.add('placeholder');
+                        footPriceResult.classList.remove('zero-value');
+                    }
                 } else {
-                    footPriceResult.innerHTML = `-- <span class="currency-symbol-display">${symbol}</span><small> /فوت²</small>`;
-                    footPriceResult.classList.add('placeholder');
+                    footPriceResult.innerHTML = `<span class="currency-symbol-display">${symbol}</span> 0.00 <small>/فوت²</small>`;
+                    footPriceResult.classList.remove('placeholder');
+                    footPriceResult.classList.add('zero-value');
                 }
 
-                if (totalResult !== null && isFinite(totalResult)) {
-                    totalPriceResult.innerHTML = `${formatNumber(totalResult)} <span class="currency-symbol-display">${symbol}</span>`;
+                if (isFootMode) {
+                    totalPriceResult.innerHTML = `<span class="currency-symbol-display">${symbol}</span> 0.00`;
                     totalPriceResult.classList.remove('placeholder');
+                    totalPriceResult.classList.add('zero-value');
                 } else {
-                    totalPriceResult.innerHTML = `-- <span class="currency-symbol-display">${symbol}</span>`;
-                    totalPriceResult.classList.add('placeholder');
+                    if (totalResult !== null && isFinite(totalResult)) {
+                        totalPriceResult.innerHTML = `${formatNumber(totalResult)} <span class="currency-symbol-display">${symbol}</span>`;
+                        totalPriceResult.classList.remove('placeholder');
+                        totalPriceResult.classList.remove('zero-value');
+                    } else {
+                        totalPriceResult.innerHTML = `-- <span class="currency-symbol-display">${symbol}</span>`;
+                        totalPriceResult.classList.add('placeholder');
+                        totalPriceResult.classList.remove('zero-value');
+                    }
                 }
             }
 
-            // ===== Format inputs on blur =====
             function formatInputs() {
                 const area = parseNumber(areaInput.value);
                 const total = parseNumber(totalPriceInput.value);
@@ -1177,14 +1257,11 @@
                 updateResults();
             }
 
-            // ===== Event Listeners =====
-
-            // Auto-convert Arabic numbers to English
+            // Auto-convert Arabic numbers
             autoConvertToEnglish(areaInput);
             autoConvertToEnglish(totalPriceInput);
             autoConvertToEnglish(pricePerFootInput);
 
-            // Mode buttons
             modeBtns.forEach(btn => {
                 btn.addEventListener('click', function() {
                     modeBtns.forEach(b => b.classList.remove('active'));
@@ -1195,34 +1272,37 @@
                 });
             });
 
-            // Currency change
             currencySelect.addEventListener('change', function() {
                 currentCurrency = this.value;
                 updateCurrencyDisplay();
                 updateResults();
             });
 
-            // Calculate
-            calculateBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                formatInputs();
-                updateResults();
-            });
-
-            // Clear
             clearBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 areaInput.value = '';
                 totalPriceInput.value = '';
                 pricePerFootInput.value = '';
                 const symbol = currencies[currentCurrency]?.symbol || '';
-                footPriceResult.innerHTML = `-- <span class="currency-symbol-display">${symbol}</span><small> /فوت²</small>`;
-                totalPriceResult.innerHTML = `-- <span class="currency-symbol-display">${symbol}</span>`;
-                footPriceResult.classList.add('placeholder');
-                totalPriceResult.classList.add('placeholder');
+                const isFootMode = currentMode === 'footFromTotal';
+                
+                if (isFootMode) {
+                    footPriceResult.innerHTML = `-- <span class="currency-symbol-display">${symbol}</span><small> /فوت²</small>`;
+                    footPriceResult.classList.add('placeholder');
+                    footPriceResult.classList.remove('zero-value');
+                    totalPriceResult.innerHTML = `<span class="currency-symbol-display">${symbol}</span> 0.00`;
+                    totalPriceResult.classList.remove('placeholder');
+                    totalPriceResult.classList.add('zero-value');
+                } else {
+                    footPriceResult.innerHTML = `<span class="currency-symbol-display">${symbol}</span> 0.00 <small>/فوت²</small>`;
+                    footPriceResult.classList.remove('placeholder');
+                    footPriceResult.classList.add('zero-value');
+                    totalPriceResult.innerHTML = `-- <span class="currency-symbol-display">${symbol}</span>`;
+                    totalPriceResult.classList.add('placeholder');
+                    totalPriceResult.classList.remove('zero-value');
+                }
             });
 
-            // Reset
             resetBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 areaInput.value = '300';
@@ -1234,9 +1314,9 @@
                 body.classList.remove('light-mode');
                 themeLabel.textContent = translations[currentLang].light;
                 themeToggle.innerHTML = `<i class="fas fa-sun"></i> <span id="themeLabel">${translations[currentLang].light}</span>`;
-                fontSizeSelect.value = 'medium';
-                body.className = body.className.replace(/font-(small|medium|large)/g, '').trim();
-                body.classList.add('font-medium');
+                
+                // Reset font to medium
+                setFontSize('medium');
                 
                 modeBtns.forEach(b => b.classList.remove('active'));
                 document.querySelector('[data-mode="footFromTotal"]').classList.add('active');
@@ -1246,7 +1326,6 @@
                 updateResults();
             });
 
-            // Theme toggle
             themeToggle.addEventListener('click', function() {
                 body.classList.toggle('light-mode');
                 const isDark = !body.classList.contains('light-mode');
@@ -1256,14 +1335,6 @@
                     `<i class="fas fa-moon"></i> <span id="themeLabel">${translations[currentLang].dark}</span>`;
             });
 
-            // Font size
-            fontSizeSelect.addEventListener('change', function() {
-                const val = this.value;
-                body.classList.remove('font-small', 'font-medium', 'font-large');
-                body.classList.add(`font-${val}`);
-            });
-
-            // Language toggle
             langBtns.forEach(btn => {
                 btn.addEventListener('click', function() {
                     langBtns.forEach(b => b.classList.remove('active'));
@@ -1281,29 +1352,23 @@
                 input.addEventListener('blur', formatInputs);
             });
 
-            // Enter key
             document.querySelectorAll('input').forEach(inp => {
                 inp.addEventListener('keypress', function(e) {
                     if (e.key === 'Enter') {
                         e.preventDefault();
                         formatInputs();
-                        calculateBtn.click();
                     }
                 });
             });
 
-            // ===== Init =====
-            window.addEventListener('DOMContentLoaded', function() {
-                body.classList.add('font-medium');
-                body.classList.remove('light-mode');
-                updateLanguage('ar');
-                updateModeUI();
-                updateCurrencyDisplay();
-                formatInputs();
-                updateResults();
-            });
-
-        })();
+            // Initial setup
+            body.classList.remove('light-mode');
+            updateLanguage('ar');
+            updateModeUI();
+            updateCurrencyDisplay();
+            formatInputs();
+            updateResults();
+        });
     </script>
 </body>
 </html>
